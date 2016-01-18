@@ -53,8 +53,6 @@ import org.maxgamer.maxbans.listeners.JoinListener;
 import org.maxgamer.maxbans.sync.SyncServer;
 import org.maxgamer.maxbans.sync.Syncer;
 import org.maxgamer.maxbans.util.Formatter;
-import org.maxgamer.maxbans.util.Metrics;
-import org.maxgamer.maxbans.util.Metrics.Graph;
 
 /**
  * The MaxBans plugin.<br/>
@@ -85,7 +83,6 @@ public class MaxBans extends JavaPlugin{
     private ChatCommandListener chatCommandListener;
     
     private Database db;
-    private Metrics metrics;
     
     /** Should we filter players names onJoin? */
     public boolean filter_names;
@@ -244,8 +241,6 @@ public class MaxBans extends JavaPlugin{
         Bukkit.getServer().getPluginManager().registerEvents(this.joinListener, this);
         Bukkit.getServer().getPluginManager().registerEvents(this.chatCommandListener, this);
         
-        startMetrics();
-        
         if(this.isBungee()){
         	//Incoming (Results for IPs)
         	Bukkit.getMessenger().registerIncomingPluginChannel(this, MaxBans.BUNGEE_CHANNEL, new BungeeListener());
@@ -344,46 +339,7 @@ public class MaxBans extends JavaPlugin{
 		
     }
     
-    public void startMetrics(){
-        try{
-        	if(metrics != null) return; //Don't start two metrics. 
-        	
-        	metrics = new Metrics(this);
-        	if(metrics.start() == false) return; //Metrics is opt-out.
-        	
-        	Graph bans = metrics.createGraph("Bans");
-        	Graph ipbans = metrics.createGraph("IP Bans");
-        	Graph mutes = metrics.createGraph("Mutes");
-        	
-        	bans.addPlotter(new Metrics.Plotter() {
-				@Override
-				public int getValue() {
-					return getBanManager().getBans().size();
-				}
-			});
-        	
-        	ipbans.addPlotter(new Metrics.Plotter() {
-				@Override
-				public int getValue() {
-					return getBanManager().getIPBans().size();
-				}
-			});
-        	
-        	mutes.addPlotter(new Metrics.Plotter() {
-				@Override
-				public int getValue() {
-					return getBanManager().getMutes().size();
-				}
-			});
-        	
-        }
-        catch(IOException e){
-        	e.printStackTrace();
-        	System.out.println("Metrics start failed");
-        }
-    }
-    /** Returns the metrics object for MaxBans */
-    public Metrics getMetrics(){ return metrics; }
+    
     /** The syncer for sending messages to other SyncServers */
     public Syncer getSyncer(){ return this.syncer; }
 }
